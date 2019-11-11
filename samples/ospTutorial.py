@@ -98,8 +98,8 @@ def main() :
     
     ## access framebuffer and write its content as PPM file
     ##const uint32_t * fb = (uint32_t*)ospMapFrameBuffer(framebuffer, OSP_FB_COLOR)
-    print("saving frame buffer to 'firstFrame.ppm'")
-    ospFrameBufferSave("firstFrame.ppm", framebuffer, imgSize, "srgba")
+    print("saving frame buffer to 'firstFrame.png'")
+    ospFrameBufferSave("firstFrame.png", framebuffer, imgSize, "srgba")
     ##ospUnmapFrameBuffer(fb, framebuffer)
 
     ## render 10 more frames, which are accumulated to result in a better converged image
@@ -110,8 +110,8 @@ def main() :
     ##fb = (uint32_t*)ospMapFrameBuffer(framebuffer, OSP_FB_COLOR)
     ##writePPM("accumulatedFrame.ppm", &imgSize, fb)
     ##ospUnmapFrameBuffer(fb, framebuffer)
-    print("saving accumulated frame buffer to 'accumulatedFrame.ppm'")
-    ospFrameBufferSave("accumulatedFrame.ppm", framebuffer, imgSize, "srgba")
+    print("saving accumulated frame buffer to 'accumulatedFrame.png'")
+    ospFrameBufferSave("accumulatedFrame.png", framebuffer, imgSize, "srgba")
 
     ## final cleanups
     ospRelease(renderer)

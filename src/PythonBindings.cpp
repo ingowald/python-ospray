@@ -19,9 +19,10 @@
 #include <iostream>
 #include <vector>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION 1
+#include "3rdParty/stb_image_write.h"
+
 /* static PyObject *SpamError; */
-
-
 
 // helper function to write the rendered image as PPM file
 void writePPM(const char *fileName,
@@ -46,6 +47,15 @@ void writePPM(const char *fileName,
   }
   fprintf(file, "\n");
   fclose(file);
+}
+
+// helper function to write the rendered image as PNG file
+void writePNG(const std::string &fileName,
+              const osp::vec2i &fbSize,
+              const uint32_t *pixel)
+{
+  stbi_write_png(fileName.c_str(),fbSize.x,fbSize.y,4,
+                 pixel,fbSize.x*sizeof(uint32_t));
 }
 
 
@@ -287,9 +297,26 @@ extern "C" PyObject *ospray_frameBufferSave(PyObject *self, PyObject *args)
   if (!PyArg_ParseTuple(args, "sl(ii)s",
                         &fileName, &fb, &size.x, &size.y, &format)) 
     return NULL;
-
-  uint32_t *pixels = (uint32_t *)ospMapFrameBuffer(fb,OSP_FB_COLOR);
-  writePPM(fileName,size,pixels);
+  
+  const std::string fn = fileName;
+  size_t dotPos = fn.rfind(".");
+  if (dotPos == std::string::npos)
+    throw std::runtime_error
+      ("invalid image file name '"
+       +fn
+       +"' : cannot determine file format from extension");
+  const uint32_t *pixels
+    = (const uint32_t *)ospMapFrameBuffer(fb,OSP_FB_COLOR);
+  
+  const std::string ext = fn.substr(dotPos);
+  if (ext == ".png" || ext == ".PNG")
+    writePNG(fileName,size,pixels);
+  else if (ext == ".ppm" || ext == ".PPM")
+    writePPM(fileName,size,pixels);
+  else 
+    std::cerr << "invalid/unsupported file name type '"
+              << ext << "'" << std::endl;
+    
   ospUnmapFrameBuffer(pixels,fb);
   Py_INCREF(Py_None);
   return Py_None;
